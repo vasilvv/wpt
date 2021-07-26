@@ -1,5 +1,5 @@
 // Helpers called on the main test HTMLs.
-// Functions in `RemoteContext.execute_script()`'s 1st argument are evaluated
+// Functions in `RemoteWindow.executeScript()`'s 1st argument are evaluated
 // on the executors (`executor.html`), and helpers available on the executors
 // are defined in `executor.html`.
 
@@ -39,7 +39,7 @@ async function assert_not_bfcached(target) {
 
 async function getBFCachedStatus(target) {
   const [loadCount, isPageshowFired, isPageshowPersisted] =
-    await target.execute_script(() => [
+    await target.executeScript(() => [
         window.loadCount, window.isPageshowFired, window.isPageshowPersisted]);
 
   if (loadCount === 1 && isPageshowFired === true &&
@@ -88,43 +88,48 @@ function runEventTest(params, description) {
       'window.pagehide.persisted',
       'window.pageshow.persisted'
     ],
-  }
+  };
   // Apply defaults.
   params = {...defaultParams, ...params};
 
   promise_test(async t => {
-    const pageA = new RemoteContext(token());
-    const pageB = new RemoteContext(token());
+    const pageA = new RemoteWindow();
+    const pageB = new RemoteWindow();
 
-    const urlA = executorPath + pageA.context_id +
+    t.add_cleanup(() => {
+        return Promise.all([pageA.close(), pageB.close()]);
+    });
+
+    const urlA = executorPath + pageA.uuid +
                  '&events=' + params.events.join(',');
-    const urlB = params.targetOrigin + executorPath + pageB.context_id;
+    const urlB = params.targetOrigin + executorPath + pageB.uuid;
 
     params.openFunc(urlA);
 
-    await pageA.execute_script(waitForPageShow);
-    await pageA.execute_script(params.funcBeforeNavigation);
-    await pageA.execute_script(
+    await pageA.executeScript(waitForPageShow);
+    await pageA.executeScript(params.funcBeforeNavigation);
+    await pageA.executeScript(
       (url) => {
         prepareNavigation(() => {
+          console.log(`Navigating to ${url}`);
           location.href = url;
         });
       },
       [urlB]
     );
 
-    await pageB.execute_script(waitForPageShow);
-    await pageB.execute_script(
+    await pageB.executeScript(waitForPageShow);
+    await pageB.executeScript(
       () => {
-        prepareNavigation(() => { history.back(); });
+        prepareNavigation(() => history.back());
       }
     );
 
-    await pageA.execute_script(waitForPageShow);
+    await pageA.executeScript(waitForPageShow);
     await assert_bfcached(pageA);
 
     assert_array_equals(
-      await pageA.execute_script(() => getRecordedEvents()),
+      await pageA.executeScript(() => getRecordedEvents()),
       params.expectedEvents);
   }, description);
 }
