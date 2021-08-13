@@ -1,0 +1,10 @@
+<!doctype html>
+<script src="/resources/channel.sub.js"></script>
+<p>FAIL
+<div id="test"></div>
+<script>
+onload = async function() {
+    await start_window_channel();
+    setTimeout(() => document.getElementById("test").textContent = "PASS", 500)
+}
+</script>

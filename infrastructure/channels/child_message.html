@@ -1,0 +1,12 @@
+<!doctype html>
+<script src="/resources/channel.sub.js"></script>
+<script>
+function handleMessage(msg) {
+    respChannel = msg;
+    respChannel.send("PASS");
+}
+
+let channel = window_channel();
+channel.addMessageHandler(handleMessage);
+channel.connect();
+</script>
