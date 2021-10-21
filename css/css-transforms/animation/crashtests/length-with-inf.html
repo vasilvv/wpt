@@ -1,0 +1,26 @@
+<meta charset="utf-8">
+<link rel="author" href="mailto:0xdevssh@gmail.com">
+<link rel="help" href="https://crbug.com/1133390">
+<meta name="assert" content="The renderer should not crash.">
+
+<div id="test">
+</div>
+
+<style>
+    #test {
+        background-color: green;
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        animation: itp 10s infinite;
+    }
+
+    @keyframes itp {
+        from {
+            right: 0px;
+        }
+        to {
+            right: calc(infinity * 1px);
+        }
+    }
+</style>
