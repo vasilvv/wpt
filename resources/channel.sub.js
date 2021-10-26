@@ -122,6 +122,9 @@
         constructor(uuid) {
             this.uuid = uuid;
             this.socket = null;
+            this.eventListeners = new Map([[
+                "connect", new Set(),
+                "close", new Set()]]);
         }
 
         hasConnection() {
@@ -133,12 +136,36 @@
                 return;
             }
             this.socket = await socketCache.getOrCreate(this.type, this.uuid, onmessage);
+            this._dispatch("connect");
         }
 
         async close() {
             this.socket = null;
             await socketCache.close(this.type, this.uuid);
+            this._dispatch("close");
         }
+
+        addEventListener(type, fn) {
+            if (!this.eventListeners.has(type)) {
+                this.eventListeners.set(type, new Set());
+            }
+            this.eventListeners.get(type).add(fn);
+        };
+
+        removeEventListener(type, fn) {
+            let listeners = this.eventListeners.get(type);
+            if (listeners) {
+                listeners.delete(fn);
+            }
+        };
+
+        _dispatch(type, data) {
+            let listeners = this.eventListeners.get(type);
+            if (listeners) {
+                listeners.forEach(fn => fn({type, data}));
+            }
+        };
+
     }
 
     class SendChannel extends Channel {
@@ -180,7 +207,7 @@
                 throw new Error(`Already created RecvChannel with id ${uuid}`);
             }
             super(uuid);
-            this.eventListeners = new Set();
+            this.listeners.set("message", new Set());
         };
 
         async connect() {
@@ -193,24 +220,16 @@
         readMessage(data) {
             console.log("readMessage", data, this.eventListeners);
             let msg = JSON.parse(data);
-            this.eventListeners.forEach(fn => fn(msg));
-        };
-
-        addEventListener(fn) {
-            this.eventListeners.add(fn);
-        };
-
-        removeEventListener(fn) {
-            this.eventListeners.delete(fn);
+            this._dispatch("message", msg);
         };
 
         next() {
             return new Promise(resolve => {
-                let fn = (msg) => {
-                    this.removeEventListener(fn);
-                    resolve(msg);
+                let fn = ({data}) => {
+                    this.removeEventListener("message", fn);
+                    resolve(data);
                 };
-                this.addEventListener(fn);
+                this.addEventListener("message", fn);
             });
         }
     }
@@ -245,7 +264,7 @@
         constructor(recvChannel) {
             this.channel = recvChannel;
             this.uuid = recvChannel.uuid;
-            this.channel.addEventListener(msg => this.handleMessage(msg));
+            this.channel.addEventListener("message", ({data}) => this.handleMessage(data));
             this.messageHandlers = new Set();
         };
 
