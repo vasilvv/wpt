@@ -8,7 +8,7 @@
 
 <script>
 setup(() => {
-    remote = new RemoteWindow();
+    remote = new RemoteGlobal();
 
     let url = `serialize_child.html?uuid=${remote.uuid}`;
     win = window.open(url);

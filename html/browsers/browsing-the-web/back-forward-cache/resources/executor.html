@@ -39,7 +39,7 @@ window.pageShowPromise = new Promise(resolve =>
   window.addEventListener('pageshow',
                           async () => {
                             if (!ctxChannel) {
-                              ctxChannel = await start_window_channel();
+                              ctxChannel = await start_global_channel();
                             }
                             console.log("pageshow on load", location.href)
                             resolve();

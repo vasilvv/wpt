@@ -6,7 +6,7 @@ function handleMessage(msg) {
     respChannel.send("PASS");
 }
 
-let channel = window_channel();
+let channel = global_channel();
 channel.addMessageHandler(handleMessage);
 channel.connect();
 </script>

@@ -222,16 +222,16 @@
         return [recvChannel, sendChannel];
     };
 
-    self.window_channel = function() {
+    self.global_channel = function() {
         let uuid = new URLSearchParams(location.search).get("uuid");
         if (!uuid) {
-            throw new Error("URL must have a uuid parameter to use as a RemoteWindow");
+            throw new Error("URL must have a uuid parameter to use as a RemoteGlobal");
         }
-        return new RemoteWindowCommandRecvChannel(new RecvChannel(uuid));
+        return new RemoteGlobalCommandRecvChannel(new RecvChannel(uuid));
     };
 
-    self.start_window_channel = async function() {
-        let channel = self.window_channel();
+    self.start_global_channel = async function() {
+        let channel = self.global_channel();
         await channel.connect();
         return channel;
     };
@@ -241,7 +241,7 @@
         await new Promise(resolve => setTimeout(resolve, 0));
     };
 
-    class RemoteWindowCommandRecvChannel {
+    class RemoteGlobalCommandRecvChannel {
         constructor(recvChannel) {
             this.channel = recvChannel;
             this.uuid = recvChannel.uuid;
@@ -305,16 +305,16 @@
         nextMessage() {
             return new Promise(resolve => {
                 let fn = (msg) => {
-                    this.removeEventListener(fn);
+                    this.removeMessageHandler(fn);
                     resolve(msg);
                 };
-                this.addEventListener(fn);
+                this.addMessageHandler(fn);
             });
         }
 
     }
 
-    class RemoteWindowResponseRecvChannel {
+    class RemoteGlobalResponseRecvChannel {
         constructor(recvChannel) {
             this.channel = recvChannel;
             this.channel.addEventListener(msg => this.handleMessage(msg));
@@ -339,7 +339,7 @@
         }
     }
 
-    class RemoteWindow {
+    class RemoteGlobal {
         constructor(dest) {
             if (!dest) {
                 dest = createUuid();
@@ -363,7 +363,7 @@
             }
             let [recvChannel, respChannel] = self.channel();
             await Promise.all([this.sendChannel.connect(), recvChannel.connect()]);
-            this.recvChannel = new RemoteWindowResponseRecvChannel(recvChannel);
+            this.recvChannel = new RemoteGlobalResponseRecvChannel(recvChannel);
             this.respChannel = respChannel;
             this.connected = true;
         }
@@ -417,7 +417,7 @@
         }
     }
 
-    self.RemoteWindow = RemoteWindow;
+    self.RemoteGlobal = RemoteGlobal;
 
     function typeName(obj) {
         let type = typeof obj;

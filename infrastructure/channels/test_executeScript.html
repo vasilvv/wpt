@@ -8,7 +8,7 @@
 <script>
 setup({single_test: true})
 onload = async () => {
-    let remote = await new RemoteWindow();
+    let remote = await new RemoteGlobal();
 
     let url = `child_script.html?uuid=${remote.uuid}`;
     win = window.open(url, "_blank", "noopener");

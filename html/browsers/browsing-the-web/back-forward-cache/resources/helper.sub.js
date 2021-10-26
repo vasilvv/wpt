@@ -93,8 +93,8 @@ function runEventTest(params, description) {
   params = {...defaultParams, ...params};
 
   promise_test(async t => {
-    const pageA = new RemoteWindow();
-    const pageB = new RemoteWindow();
+    const pageA = new RemoteGlobal();
+    const pageB = new RemoteGlobal();
 
     t.add_cleanup(() => {
         return Promise.all([pageA.close(), pageB.close()]);

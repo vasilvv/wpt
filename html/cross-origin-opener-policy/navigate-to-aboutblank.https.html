@@ -51,9 +51,9 @@ function navigateToAboutBlankTest(
     const [this_window_recv, this_window_send] = channel();
     this_window_recv.connect();
 
-    const opener = new RemoteWindow();
-    const openee = new RemoteWindow();
-    const iframe = new RemoteWindow();
+    const opener = new RemoteGlobal();
+    const openee = new RemoteGlobal();
+    const iframe = new RemoteGlobal();
 
     const opener_url = same_origin + executor_path + opener_COOP_header +
         `&uuid=${opener.uuid}`;
