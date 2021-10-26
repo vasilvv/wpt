@@ -131,7 +131,7 @@ def run_write(request, uuid, queue):
         if line is None:
             break
         cmd, body = json.loads(line)
-        if cmd == "pause":
+        if cmd == "disconnectReader":
             queue.put(("close", None))
         elif cmd == "message":
             log(uuid, f"queue.put ({cmd}, {body})")

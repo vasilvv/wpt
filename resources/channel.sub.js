@@ -186,9 +186,8 @@
             this._send("message", msg);
         }
 
-        async pause() {
-            console.log("pause");
-            this._send("pause");
+        async disconnectReader() {
+            this._send("disconnectReader");
         }
 
         async delete() {
@@ -418,9 +417,9 @@
             await this.sendMessage("postMessage", {msg: serialize(msg)}, false);
         }
 
-        pause() {
+        disconnectReader() {
             // This causes any readers to disconnect until they are explictly reconnected
-            return this.sendChannel.pause();
+            return this.sendChannel.disconnectReader();
         }
 
         close() {
