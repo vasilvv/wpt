@@ -106,9 +106,9 @@ function runEventTest(params, description) {
 
     params.openFunc(urlA);
 
-    await pageA.executeScript(waitForPageShow);
-    await pageA.executeScript(params.funcBeforeNavigation);
-    await pageA.executeScript(
+    await pageA.call(waitForPageShow);
+    await pageA.call(params.funcBeforeNavigation);
+    await pageA.call(
       (url) => {
         prepareNavigation(() => {
           console.log(`Navigating to ${url}`);
@@ -118,18 +118,18 @@ function runEventTest(params, description) {
       [urlB]
     );
 
-    await pageB.executeScript(waitForPageShow);
-    await pageB.executeScript(
+    await pageB.call(waitForPageShow);
+    await pageB.call(
       () => {
         prepareNavigation(() => history.back());
       }
     );
 
-    await pageA.executeScript(waitForPageShow);
+    await pageA.call(waitForPageShow);
     await assert_bfcached(pageA);
 
     assert_array_equals(
-      await pageA.executeScript(() => getRecordedEvents()),
+      await pageA.call(() => getRecordedEvents()),
       params.expectedEvents);
   }, description);
 }

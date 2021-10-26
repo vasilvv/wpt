@@ -16,7 +16,7 @@ setup(() => {
 
 for (let [name, obj] of Object.entries(objects)) {
     promise_test(async t => {
-        let result = await remote.executeScript(
+        let result = await remote.call(
             (name, inputValue) => compareResult(name, inputValue),
             name,
             obj.input);
@@ -26,7 +26,7 @@ for (let [name, obj] of Object.entries(objects)) {
 
 promise_test(async t => {
     let remoteValue = RemoteObject.from(document.head);
-    let result = await remote.executeScript(inputValue => {
+    let result = await remote.call(inputValue => {
         if (!inputValue instanceof RemoteObject) {
             throw new AssertionError(`Expected RemoteObject`);
         }

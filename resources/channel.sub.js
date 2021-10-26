@@ -261,7 +261,7 @@
             const {id, command, params, respChannel} = msg;
             let result = {};
             let resp = {id, result};
-            if (command === "executeScript") {
+            if (command === "call") {
                 const fn = deserialize(params.fn);
                 const args = params.args.map(x => {
                     return deserialize(x);
@@ -311,7 +311,6 @@
                 this.addMessageHandler(fn);
             });
         }
-
     }
 
     class RemoteGlobalResponseRecvChannel {
@@ -387,8 +386,8 @@
             return await response;
         }
 
-        async executeScript(fn, ...args) {
-            let result = await this.sendMessage("executeScript", {fn: serialize(fn), args: args.map(x => serialize(x))}, true);
+        async call(fn, ...args) {
+            let result = await this.sendMessage("call", {fn: serialize(fn), args: args.map(x => serialize(x))}, true);
             if (result.exceptionDetails) {
                 throw deserialize(result.exceptionDetails.exception);
             }

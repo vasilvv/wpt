@@ -62,7 +62,7 @@ function navigateToAboutBlankTest(
     const iframe_url = iframe_origin + executor_path + iframe_header + `&uuid=${iframe.uuid}`;
 
     t.add_cleanup(async () => {
-      await opener.executeScript(() => window.close());
+      await opener.call(() => window.close());
       await closeAllChannelSockets();
     });
 
@@ -70,25 +70,25 @@ function navigateToAboutBlankTest(
     window.open(opener_url, opener.uuid);
 
     // 2. Create the iframe.
-    await opener.executeScript(iframe_url => {
+    await opener.call(iframe_url => {
       iframe = document.createElement('iframe');
       iframe.src = iframe_url;
       document.body.appendChild(iframe);
     }, iframe_url);
 
     // 3. The iframe opens its openee window.
-    await iframe.executeScript((url, uuid) => 
+    await iframe.call((url, uuid) =>
         {window.openee = window.open(url, uuid)},
         openee_url,
         openee.uuid
     );
 
     // 4. Ensure the popup is fully loaded.
-    let resp = await openee.executeScript(() => "Ack");
+    let resp = await openee.call(() => "Ack");
     assert_equals(resp, "Ack");
 
     // 5. The iframe navigates openee to about:blank.
-    iframe.executeScript((openee_token, test_channel) => {
+    iframe.call((openee_token, test_channel) => {
       window.openee_blank = window.open('about:blank', openee_token);
       (async function() {
         const timeout = 2000;
@@ -111,7 +111,7 @@ function navigateToAboutBlankTest(
     assert_equals(await this_window_recv.next(), "about:blank loaded");
 
     // 6. Retrieve and check the results.
-    let closed = await iframe.executeScript(() => window.openee.closed);
+    let closed = await iframe.call(() => window.openee.closed);
     assert_equals(closed, expect_openee_closed);
   }, `Navigate to about:blank from iframe with opener.top \
 COOP: ${opener_COOP_header}, iframe origin: ${iframe_origin}, \
