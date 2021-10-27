@@ -602,6 +602,7 @@
                 case "error":
                     value = {
                         type: item.constructor.name,
+                        name: item.name,
                         message: item.message,
                         lineNumber: item.lineNumber,
                         columnNumber: item.columnNumber,
@@ -749,6 +750,7 @@
                     } else {
                         result = new Error(item.value.message);
                     }
+                    result.name = item.value.name;
                     result.lineNumber = item.value.lineNumber;
                     result.columnNumber = item.value.columnNumber;
                     result.fileName = item.value.fileName;
