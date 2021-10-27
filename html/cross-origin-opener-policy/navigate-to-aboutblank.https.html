@@ -108,7 +108,7 @@ function navigateToAboutBlankTest(
         test_channel.send("about:blank not loaded");
       })()
     }, openee.uuid, this_window_send);
-    assert_equals(await this_window_recv.next(), "about:blank loaded");
+    assert_equals(await this_window_recv.nextMesssage(), "about:blank loaded");
 
     // 6. Retrieve and check the results.
     let closed = await iframe.call(() => window.openee.closed);

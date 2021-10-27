@@ -222,7 +222,7 @@
             this._dispatch("message", msg);
         };
 
-        next() {
+        nextMessage() {
             return new Promise(resolve => {
                 let fn = ({data}) => {
                     this.removeEventListener("message", fn);

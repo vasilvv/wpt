@@ -16,7 +16,7 @@ setup({single_test: true});
     let [recvChannel, sendChannel] = channel();
     await remote.postMessage(sendChannel);
     await recvChannel.connect();
-    let message = await recvChannel.next();
+    let message = await recvChannel.nextMessage();
     assert_equals(message, "PASS");
     done();
 })();
