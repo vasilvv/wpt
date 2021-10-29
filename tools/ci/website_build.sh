@@ -38,11 +38,10 @@ git checkout FETCH_HEAD
 git rm -rf .
 
 # Build the website
-cd ../..
-pip install -r requirements.txt
-make html
+cd ../../..
+./wpt build-docs
 
-cd _build/html
+cd docs/_build/html
 # Configure DNS
 echo web-platform-tests.org > CNAME
 # Disable Jekyll
