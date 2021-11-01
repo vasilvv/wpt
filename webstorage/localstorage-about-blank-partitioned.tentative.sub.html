@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>localStorage: about:blank partitioning</title>
+<meta name=help href="https://privacycg.github.io/storage-partitioning/">
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+function getOrCreateID(key) {
+  if (!localStorage.getItem(key)) {
+    const newID = +new Date() + "-" + Math.random();
+    localStorage.setItem(key, newID);
+  }
+  return localStorage.getItem(key);
+}
+
+test(t => {
+  window.addEventListener("load", t.step_func(e => {
+    localStorage.clear();
+    const id = getOrCreateID("id");
+
+    window.blankWindow = window.open("about:blank");
+    assert_true(id === blankWindow.localStorage["id"]);
+
+    t.add_cleanup(() => {
+      localStorage.clear();
+      blankWindow.close();
+    });
+  }), {once: true});
+}, "about:blank Storage initiated from window.open is not partitioned");
+
+  async_test(t => {
+    const id = getOrCreateID("id");
+    const iframe = document.createElement("iframe");
+    iframe.src = "about:blank";
+    iframe.addEventListener("load", t.step_func(e => {
+      assert_true(id === iframe.contentWindow.localStorage["id"]);
+      t.done();
+    }));
+    document.body.appendChild(iframe);
+
+    t.add_cleanup(() => {
+      iframe.remove();
+      localStorage.clear();
+    });
+  }, "about:blank iframe Storage is not partitioned.");
+</script>
+</body>
