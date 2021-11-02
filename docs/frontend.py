@@ -57,10 +57,41 @@ def unlink_source_dirs(created):
 def get_parser():
     p = argparse.ArgumentParser()
     p.add_argument("--type", default="html", help="Output type (default: html)")
+    p.add_argument("--docker", action="store_true", help="Run inside the docs docker image")
     return p
 
 
+def docker_build(tag="wpt:docs"):
+    subprocess.check_call(["docker",
+                           "build",
+                           "--pull",
+                           "--tag", "wpt:docs",
+                           os.path.join(here, "docker")])
+
+def docker_run(**kwargs):
+    cmd = ["docker", "run"]
+    cmd.extend(["--mount",
+                 "type=bind,source=%s,target=/home/build/web-platform-tests" % wpt_root])
+    if kwargs["serve"] is not None:
+        cmd.extend(["--expose", str(kwargs["serve"]),
+                    "--publish", f"{kwargs['serve']}:{kwargs['serve']}"])
+    cmd.extend(["-w", "/home/build/web-platform-tests"])
+    cmd.extend(["-it", "wpt:docs"])
+    cmd.extend(["./wpt", "build-docs", "--type", kwargs["type"]])
+    if kwargs["serve"] is not None:
+        cmd.extend(["--serve", str(kwargs["serve"])])
+    print(" ".join(cmd))
+    proc = subprocess.Popen(cmd)
+    proc.wait()
+    return proc.returncode
+
+
 def build(_venv, **kwargs):
+    if kwargs["docker"]:
+        docker_build()
+        return docker_run(**kwargs)
+
+    out_dir = os.path.join(here, "_build")
     try:
         created, failed = link_source_dirs()
         if failed:
@@ -71,6 +102,6 @@ def build(_venv, **kwargs):
                                "-n", "-v",
                                "-b", kwargs["type"],
                                here,
-                               os.path.join(here, "_build")])
+                               out_dir])
     finally:
         unlink_source_dirs(created)
