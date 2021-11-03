@@ -39,7 +39,7 @@ git rm -rf .
 
 # Build the website
 cd ../../..
-./wpt build-docs
+./wpt build-docs --docker
 
 cd docs/_build/html
 # Configure DNS
