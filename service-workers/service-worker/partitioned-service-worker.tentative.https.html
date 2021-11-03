@@ -91,7 +91,8 @@ promise_test(async t => {
 
   // Now create a 3p iframe that will try to resolve the SW in a 3p context.
   const third_party_url = new URL(
-    './resources/partitioned-service-worker-third-party-window.html',
+    './resources/partitioned-service-worker-third-party-window.html'
+    + '?partitioned-service-worker-third-party-iframe.html',
     get_host_info().HTTPS_NOTSAMESITE_ORIGIN + self.location.pathname);
 
   // Create the 3p window (which will in turn create the iframe with the SW)

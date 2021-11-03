@@ -5,14 +5,9 @@
 
 
 <body>
-This page should be opened as a third-party window. It then loads an iframe that
-registers a service worker that, in turn, attempts to resolve its internal
-Promise. Once that happens this window will postMessage back to the test to let
-it know that the resolution occured.
-
-If 3p partitioning is active then this Promise resolution won't
-resolve the promise in the test's (that originally opened this page) 1p
-service worker.
+This page should be opened as a third-party window. It then loads an iframe
+specified by the query parameter. Finally it forwards the postMessage from the
+iframe up to the opener (the test).
 
 <script>
 
@@ -23,8 +18,9 @@ async function onLoad() {
     });
   });
 
+  const query_param = window.location.search.substr(1);
   const iframe_url = new URL(
-    './partitioned-service-worker-third-party-iframe.html',
+    query_param,
     get_host_info().HTTPS_ORIGIN + self.location.pathname);
 
   var frame = document.createElement('iframe');
