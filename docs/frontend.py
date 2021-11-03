@@ -79,7 +79,10 @@ def docker_run(**kwargs):
                     "--publish", f"{kwargs['serve']}:{kwargs['serve']}"])
     cmd.extend(["-w", "/home/build/web-platform-tests"])
     cmd.extend(["-it", "wpt:docs"])
-    cmd.extend(["./wpt", "build-docs", "--type", kwargs["type"]])
+    cmd.append("./wpt")
+    if kwargs["venv"]:
+        cmd.extend(["--venv", kwargs["venv"]])
+    cmd.extend(["build-docs", "--type", kwargs["type"]])
     if kwargs["serve"] is not None:
         cmd.extend(["--serve", str(kwargs["serve"])])
     print(" ".join(cmd))
@@ -91,6 +94,7 @@ def docker_run(**kwargs):
 def build(_venv, **kwargs):
     if kwargs["docker"]:
         docker_build()
+        kwargs["venv"] = "/home/build/venv"
         return docker_run(**kwargs)
 
     out_dir = os.path.join(here, "_build")
