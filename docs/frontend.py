@@ -1,6 +1,7 @@
 import argparse
-import subprocess
+import logging
 import os
+import subprocess
 import sys
 
 here = os.path.dirname(__file__)
@@ -14,8 +15,10 @@ link_dirs = [
     "tools/certs",
     "tools/wptrunner",
     "tools/webtransport",
-    "tools/third_party/pywebsocket3"
+    "tools/third_party/pywebsocket3",
 ]
+
+logger = logging.getLogger()
 
 
 def link_source_dirs():
@@ -85,7 +88,7 @@ def docker_run(**kwargs):
     cmd.extend(["build-docs", "--type", kwargs["type"]])
     if kwargs["serve"] is not None:
         cmd.extend(["--serve", str(kwargs["serve"])])
-    print(" ".join(cmd))
+    logger.debug(" ".join(cmd))
     proc = subprocess.Popen(cmd)
     proc.wait()
     return proc.returncode
@@ -102,7 +105,7 @@ def build(_venv, **kwargs):
         created, failed = link_source_dirs()
         if failed:
             failure_msg = "\n".join(f"{dest}: {err}" for (dest, err) in failed)
-            print(f"Failed to create source symlinks:\n{failure_msg}")
+            logger.error(f"Failed to create source symlinks:\n{failure_msg}")
             sys.exit(1)
         if kwargs["serve"] is not None:
             executable = "sphinx-autobuild"
@@ -119,7 +122,7 @@ def build(_venv, **kwargs):
             executable = "sphinx-build"
             extras = []
         cmd = [executable, "-n", "-v", "-b", kwargs["type"], "-j", "auto"] + extras + [here, out_dir]
-        print(" ".join(cmd))
+        logger.debug(" ".join(cmd))
         subprocess.check_call(cmd)
     finally:
         unlink_source_dirs(created)
